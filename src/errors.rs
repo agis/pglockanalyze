@@ -28,9 +28,11 @@ impl From<pg_query::Error> for Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::ConfigParseError(e) => write!(f, "configuration error: {}", e),
-            Self::ConfigOtherError(s) => write!(f, "configuration error: {}", s),
-            Self::AnalyzeError(e) => write!(f, "analysis error: {}", e),
+            Self::ConfigParseError(e) => write!(f, "{e}"),
+            Self::ConfigOtherError(s) => write!(f, "{s}"),
+            Self::AnalyzeError(e) => write!(f, "{e}"),
         }
     }
 }
+
+impl std::error::Error for Error {}
