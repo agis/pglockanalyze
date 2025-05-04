@@ -38,8 +38,10 @@ impl Analyzer {
             .protobuf
             .stmts
             .into_iter()
-            .map(|s| s.stmt.unwrap().deparse().unwrap())
-            .map(|s| self.analyze_one(&s))
+            .map(|stmt| {
+                let stmt = stmt.stmt.unwrap().deparse().unwrap();
+                self.analyze_one(&stmt)
+            })
             .collect()
     }
 }
