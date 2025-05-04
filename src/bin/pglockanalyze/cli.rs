@@ -1,4 +1,5 @@
 use clap::{Parser, ValueEnum};
+use patharg::InputArg;
 use pglockanalyze::statement::Statement;
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -23,8 +24,9 @@ impl Formatter {
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
-    /// The DDL statement to be analyzed
-    pub statement: String,
+    /// The DDL statements to be analyzed
+    #[arg(default_value_t)]
+    pub input: InputArg,
 
     /// The database to connect to
     #[arg(long, value_name = "postgres connection string")]

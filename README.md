@@ -12,7 +12,9 @@ production use.
 ## Usage
 
 ```shell
-$ ./pglockanalyze --db "postgresql://a:b@localhost/db" "ALTER TABLE users ALTER COLUMN name SET NOT NULL"
+$ echo 'ALTER TABLE users ALTER COLUMN name SET NOT NULL' | pglockanalyze --db 'postgresql://a:b@localhost/db'
 ALTER TABLE users ALTER COLUMN name SET NOT NULL
 	acquired `AccessExclusive` lock on relation `users` (oid=16386)
 ```
+
+Use `--help` to see all options.

@@ -660,6 +660,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "patharg"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ada2bee7a186eb0d859bb985e47991d4c5b6887c95fc28c44ebc0e7d52b526a"
+dependencies = [
+ "cfg-if",
+ "either",
+]
+
+[[package]]
 name = "peeking_take_while"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -704,6 +714,7 @@ name = "pglockanalyze"
 version = "0.0.1"
 dependencies = [
  "clap",
+ "patharg",
  "pg_query",
  "postgres",
  "serde",

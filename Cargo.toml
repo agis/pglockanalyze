@@ -6,6 +6,7 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.37", features = ["derive"] }
+patharg = "0.4.0"
 pg_query = "6.0.0"
 postgres = { version = "0.19.10"}
 serde = { version = "1.0.219", features = ["derive"] }

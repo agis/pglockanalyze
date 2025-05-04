@@ -6,7 +6,6 @@ pub struct Analyzer {
     // TODO: merge these two into a single Config struct?
     config: postgres::Config,
     wrap_in_transaction: bool,
-    pub statements: Vec<Statement>,
 }
 
 impl Analyzer {
@@ -14,11 +13,10 @@ impl Analyzer {
         Ok(Analyzer {
             wrap_in_transaction,
             config: postgres::Config::from_str(connection)?,
-            statements: Vec::new(),
         })
     }
 
-    pub fn analyze_one(&mut self, sql: &str) -> Result<Statement, Error> {
+    pub fn analyze_one(&self, sql: &str) -> Result<Statement, Error> {
         let mut client = self.config.connect(postgres::NoTls)?;
         let mut tx = client.transaction()?;
         let pid = tx.query_one("SELECT pg_backend_pid()", &[])?.get(0);
@@ -36,7 +34,7 @@ impl Analyzer {
         result
     }
 
-    pub fn analyze_many(&mut self, sql: &str) -> Result<Vec<Statement>, Error> {
+    pub fn analyze_many(&self, sql: &str) -> Result<Vec<Statement>, Error> {
         let stmts = pg_query::parse(sql)?
             .protobuf
             .stmts
@@ -47,13 +45,10 @@ impl Analyzer {
             let mut client = self.config.connect(postgres::NoTls)?;
             let mut tx = client.transaction()?;
             let pid = tx.query_one("SELECT pg_backend_pid()", &[])?.get(0);
-
             let result = stmts
                 .map(|s| Statement::analyze(&self.config, s, &mut tx, pid))
                 .collect();
-
             tx.rollback()?;
-
             result
         } else {
             stmts.map(|s| self.analyze_one(&s)).collect()
