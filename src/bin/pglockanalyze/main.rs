@@ -8,7 +8,7 @@ use cli::Cli;
 
 fn main() {
     let cli = Cli::parse();
-    let mut analyzer = Analyzer::new(&cli.db).unwrap_or_else(abort);
+    let mut analyzer = Analyzer::new(&cli.db, cli.wrap_in_transaction).unwrap_or_else(abort);
     let statements = analyzer.analyze_many(&cli.statement).unwrap_or_else(abort);
 
     println!("{}", cli.formatter.format(statements));

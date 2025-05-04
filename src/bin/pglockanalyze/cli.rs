@@ -33,7 +33,7 @@ pub struct Cli {
     #[arg(value_enum, long = "format", default_value_t = Formatter::Plain)]
     pub formatter: Formatter,
 
-    /// Enable verbose output
-    #[arg(short, long)]
-    verbose: bool,
+    /// Wrap all statements in a single transaction
+    #[arg(long, default_value_t = false)]
+    pub wrap_in_transaction: bool,
 }
