@@ -13,7 +13,13 @@ use table_lock_mode::TableLockMode;
 use target::Target;
 
 #[derive(Debug, Serialize)]
-pub struct Locks(pub HashSet<Lock>);
+pub struct Locks(HashSet<Lock>);
+
+impl Locks {
+    pub fn compute_acquired(before: HashSet<Lock>, after: HashSet<Lock>) -> Locks {
+        Locks(after.difference(&before).cloned().collect())
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Lock {
@@ -31,18 +37,6 @@ pub struct Lock {
 
     /// [pg_locks.mode] Name of the lock mode held or desired by this process
     mode: TableLockMode,
-}
-
-impl Lock {
-    pub fn compute_acquired(before: HashSet<Self>, after: HashSet<Self>) -> Locks {
-        let mut acquired_locks = HashSet::new();
-
-        for lock in after.difference(&before) {
-            acquired_locks.insert(lock.clone());
-        }
-
-        Locks(acquired_locks)
-    }
 }
 
 impl TryFrom<pg::Row> for Lock {

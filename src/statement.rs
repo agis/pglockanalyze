@@ -5,10 +5,10 @@ use serde::Serialize;
 use std::collections::HashSet;
 use std::fmt;
 
-#[derive(Debug, Serialize)]
+#[derive(Serialize)]
 pub struct Statement {
     sql: String,
-    locks: Locks,
+    locks_acquired: Locks,
 }
 
 impl Statement {
@@ -21,11 +21,11 @@ impl Statement {
         let locks_before = Self::detect_locks(config, pid)?;
         tx.execute(&sql, &[])?;
         let locks_after = Self::detect_locks(config, pid)?;
-        let locks_acquired = Lock::compute_acquired(locks_before, locks_after);
+        let locks_acquired = Locks::compute_acquired(locks_before, locks_after);
 
         Ok(Statement {
             sql,
-            locks: locks_acquired,
+            locks_acquired,
         })
     }
 
@@ -55,6 +55,6 @@ WHERE
 
 impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\n{}", self.sql, self.locks)
+        write!(f, "{}\n{}", self.sql, self.locks_acquired)
     }
 }
