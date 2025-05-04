@@ -32,17 +32,26 @@ impl Statement {
     fn detect_locks(config: &pg::Config, pid: i32) -> Result<HashSet<Lock>, Error> {
         const SQL: &str = "\
 SELECT
-    locktype, database, relation, objid, mode,
-    CASE locktype
-        WHEN 'relation' THEN relation::regclass::text
-        WHEN 'object'   THEN 'object: ' || objid::text || ' (class: ' || classid::regclass::text || ')'
+    l.locktype,
+    l.database,
+    d.datname AS database_name,
+    l.relation,
+    l.objid,
+    l.mode,
+    CASE l.locktype
+        WHEN 'relation' THEN l.relation::regclass::text
+        WHEN 'object'   THEN 'object: ' || l.objid::text || ' (class: ' || l.classid::regclass::text || ')'
     END AS target
 FROM
-    pg_catalog.pg_locks
+    pg_catalog.pg_locks l
+LEFT JOIN
+    pg_catalog.pg_database d
+ON
+    l.database = d.oid
 WHERE
-    pid = $1
-    AND locktype IN ('relation', 'object')
-    AND granted";
+    l.pid = $1
+    AND l.locktype IN ('relation', 'object')
+    AND l.granted";
 
         config
             .connect(postgres::NoTls)?

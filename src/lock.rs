@@ -5,9 +5,11 @@ use serde::Serialize;
 use std::collections::HashSet;
 use std::fmt;
 
+mod database;
 mod lock_type;
 mod table_lock_mode;
 mod target;
+use database::Database;
 use lock_type::LockType;
 use table_lock_mode::TableLockMode;
 use target::Target;
@@ -23,20 +25,19 @@ impl Locks {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Lock {
+    /// [pg_locks.database] database in which the lock target exists
+    // Always populated since we filter for relation/object locktypes.
+    database: Database,
+
+    /// [pg_locks.mode] Name of the lock mode held or desired by this process
+    mode: TableLockMode,
+
     /// Human-readable representation of the locked object
     lock_target: Target,
 
     /// [pg_locks.locktype] Type of the lockable object
     #[serde(skip)]
     locktype: LockType,
-
-    /// [pg_locks.database] OID of the database in which the lock target exists,
-    /// or zero if the target is a shared object, or null if the target is a
-    /// transaction ID
-    database: Option<Oid>,
-
-    /// [pg_locks.mode] Name of the lock mode held or desired by this process
-    mode: TableLockMode,
 }
 
 impl TryFrom<pg::Row> for Lock {
@@ -63,10 +64,15 @@ impl TryFrom<pg::Row> for Lock {
             }
         };
 
+        let database = Database {
+            oid: row.try_get("database")?,
+            name: row.try_get("database_name")?,
+        };
+
         Ok(Self {
             locktype,
             lock_target,
-            database: row.try_get("database")?,
+            database,
             mode: row.try_get("mode")?,
         })
     }
