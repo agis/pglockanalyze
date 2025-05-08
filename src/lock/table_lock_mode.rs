@@ -1,8 +1,8 @@
 use postgres::types::{accepts, FromSql, Type};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Possible values of the pg_locks.mode column
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
 pub enum TableLockMode {
     /// Conflicts with the ACCESS EXCLUSIVE lock mode only.
     ///

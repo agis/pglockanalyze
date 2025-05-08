@@ -1,0 +1,26 @@
+# FIXME: observe cannot see the idx alias.
+#
+#- wrap_in_transaction: true
+#  starting_schema: |-
+#    CREATE TABLE order_items (
+#      order_id   int,
+#      product_id int
+#    );
+#  statements: |-
+#    ALTER TABLE order_items ADD PRIMARY KEY (order_id, product_id);
+#    CREATE INDEX idx_order_items_product_id ON order_items(product_id);
+#  expected:
+#    - sql: ALTER TABLE order_items ADD PRIMARY KEY (order_id, product_id)
+#      locks_acquired:
+#        - database:
+#            name: pglatests
+#          mode: ShareRowExclusive
+#          lock_target: !relation
+#            alias: order_items
+#    - sql: CREATE INDEX idx_order_items_product_id ON order_items(product_id)
+#      locks_acquired:
+#        - database:
+#            name: pglatests
+#          mode: AccessExclusive
+#          lock_target: !relation
+#            alias: idx_order_items_product_id

@@ -1,7 +1,7 @@
 use crate::errors::Error;
 use postgres as pg;
 use postgres::types::Oid;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
 
@@ -14,7 +14,7 @@ use lock_type::LockType;
 use table_lock_mode::TableLockMode;
 use target::Target;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Locks(HashSet<Lock>);
 
 impl Locks {
@@ -23,7 +23,7 @@ impl Locks {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Lock {
     /// [pg_locks.database] database in which the lock target exists
     // Always populated since we filter for relation/object locktypes.
@@ -34,10 +34,6 @@ pub struct Lock {
 
     /// Human-readable representation of the locked object
     lock_target: Target,
-
-    /// [pg_locks.locktype] Type of the lockable object
-    #[serde(skip)]
-    locktype: LockType,
 }
 
 impl TryFrom<pg::Row> for Lock {
@@ -70,7 +66,6 @@ impl TryFrom<pg::Row> for Lock {
         };
 
         Ok(Self {
-            locktype,
             lock_target,
             database,
             mode: row.try_get("mode")?,

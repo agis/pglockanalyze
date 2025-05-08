@@ -1,14 +1,14 @@
 use crate::errors::Error;
 use crate::lock::{Lock, Locks};
 use postgres as pg;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fmt;
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Statement {
-    sql: String,
-    locks_acquired: Locks,
+    pub sql: String,
+    pub locks_acquired: Locks,
 }
 
 impl Statement {
