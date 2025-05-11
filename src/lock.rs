@@ -6,12 +6,12 @@ use std::collections::HashSet;
 use std::fmt;
 
 mod database;
+mod lock_mode;
 mod lock_type;
-mod table_lock_mode;
 mod target;
 use database::Database;
+use lock_mode::LockMode;
 use lock_type::LockType;
-use table_lock_mode::TableLockMode;
 use target::Target;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -30,7 +30,7 @@ pub struct Lock {
     database: Database,
 
     /// [pg_locks.mode] Name of the lock mode held or desired by this process
-    mode: TableLockMode,
+    mode: LockMode,
 
     /// Human-readable representation of the locked object
     lock_target: Target,

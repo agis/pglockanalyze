@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// Possible values of the pg_locks.mode column
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize, Deserialize)]
-pub enum TableLockMode {
+pub enum LockMode {
     /// Conflicts with the ACCESS EXCLUSIVE lock mode only.
     ///
     /// The SELECT command acquires a lock of this mode on referenced tables. In
@@ -75,24 +75,23 @@ pub enum TableLockMode {
     AccessExclusive,
 }
 
-impl<'a> FromSql<'a> for TableLockMode {
+impl<'a> FromSql<'a> for LockMode {
     accepts!(TEXT);
 
     fn from_sql(
         ty: &Type,
         raw: &'a [u8],
     ) -> Result<Self, Box<(dyn std::error::Error + Send + Sync + 'static)>> {
-        // TODO: don't panic
-        let lock_mode = match String::from_sql(ty, raw).unwrap().as_str() {
-            "ShareLock" => TableLockMode::Share,
-            "RowShareLock" => TableLockMode::RowShare,
-            "ExclusiveLock" => TableLockMode::Exclusive,
-            "AccessShareLock" => TableLockMode::AccessShare,
-            "RowExclusiveLock" => TableLockMode::RowExclusive,
-            "AccessExclusiveLock" => TableLockMode::AccessExclusive,
-            "ShareRowExclusiveLock" => TableLockMode::ShareRowExclusive,
-            "ShareUpdateExclusiveLock" => TableLockMode::ShareUpdateExclusive,
-            other => return Err(format!("invalid TableLockMode {}", other).into()),
+        let lock_mode = match String::from_sql(ty, raw)?.as_str() {
+            "ShareLock" => LockMode::Share,
+            "RowShareLock" => LockMode::RowShare,
+            "ExclusiveLock" => LockMode::Exclusive,
+            "AccessShareLock" => LockMode::AccessShare,
+            "RowExclusiveLock" => LockMode::RowExclusive,
+            "AccessExclusiveLock" => LockMode::AccessExclusive,
+            "ShareRowExclusiveLock" => LockMode::ShareRowExclusive,
+            "ShareUpdateExclusiveLock" => LockMode::ShareUpdateExclusive,
+            other => return Err(format!("unhandled TableLockMode {}", other).into()),
         };
 
         Ok(lock_mode)
