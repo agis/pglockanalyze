@@ -3,7 +3,7 @@ use serde::Serialize;
 
 /// Possible values of the pg_locks.locktype column
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize)]
-pub(crate) enum LockType {
+pub enum LockType {
     /// Waiting to acquire a lock on a relation
     Relation,
 
