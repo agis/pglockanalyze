@@ -1,0 +1,23 @@
+- starting_schema: |-
+    CREATE TABLE foobarz (
+      id serial PRIMARY KEY,
+      foo text
+    );
+  statements: |-
+    ALTER TABLE foobarz ADD COLUMN email text;
+    ALTER TABLE foobarz DROP email;
+  expected:
+    - sql: ALTER TABLE foobarz ADD COLUMN email text
+      locks_acquired:
+        - database:
+            name: pglatests
+          mode: AccessExclusive
+          lock_target: !relation
+            alias: foobarz
+    - sql: ALTER TABLE foobarz DROP email
+      locks_acquired:
+        - database:
+            name: pglatests
+          mode: AccessExclusive
+          lock_target: !relation
+            alias: foobarz

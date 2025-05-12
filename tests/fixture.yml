@@ -1,5 +1,4 @@
-- wrap_in_transaction: true
-  starting_schema: |-
+- starting_schema: |-
     CREATE TABLE users (
       id serial PRIMARY KEY,
       foo text
@@ -15,8 +14,7 @@
           lock_target: !relation
             alias: users
 
-- wrap_in_transaction: true
-  starting_schema: |-
+- starting_schema: |-
     CREATE TABLE products (
       id serial PRIMARY KEY,
       price numeric
@@ -32,8 +30,7 @@
           lock_target: !relation
             alias: products
 
-- wrap_in_transaction: true
-  starting_schema: |-
+- starting_schema: |-
     CREATE TABLE orders (
       id serial PRIMARY KEY
     );
@@ -50,8 +47,7 @@
             # rename (otherwise this would be orders_archive)
             alias: orders
 
-- wrap_in_transaction: true
-  starting_schema: |-
+- starting_schema: |-
     CREATE TABLE customers (
       id    serial PRIMARY KEY,
       email text
@@ -70,8 +66,7 @@
     - sql: ALTER TABLE customers RENAME COLUMN email TO contact_email
       locks_acquired: []
 
-- wrap_in_transaction: true
-  starting_schema: |-
+- starting_schema: |-
     CREATE TABLE logs (
       id      serial PRIMARY KEY,
       message text,
@@ -88,8 +83,7 @@
           lock_target: !relation
             alias: logs
 
-- wrap_in_transaction: true
-  starting_schema: |-
+- starting_schema: |-
     CREATE TABLE audits (
       id     serial PRIMARY KEY,
       amount numeric

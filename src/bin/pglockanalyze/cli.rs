@@ -35,7 +35,13 @@ pub struct Cli {
     #[arg(value_enum, long = "format", default_value_t = Formatter::Plain)]
     pub formatter: Formatter,
 
-    /// Wrap all statements in a single transaction
+    /// Wrap all statements in a single transaction. Otherwise, each statement
+    /// gets its own transaction
     #[arg(long, default_value_t = true)]
     pub wrap_in_transaction: bool,
+
+    /// Commit each transaction instead of rolling it back
+    // TODO: make this implied if wrap_in_transaction is false
+    #[arg(long, default_value_t = false)]
+    pub commit: bool,
 }

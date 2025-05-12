@@ -6,13 +6,19 @@ pub struct Analyzer {
     // TODO: merge these two into a single Config struct?
     config: postgres::Config,
     wrap_in_transaction: bool,
+    commit: bool,
 }
 
 impl Analyzer {
-    pub fn new(connection: &str, wrap_in_transaction: bool) -> Result<Analyzer, Error> {
+    pub fn new(
+        connection: &str,
+        wrap_in_transaction: bool,
+        commit: bool,
+    ) -> Result<Analyzer, Error> {
         Ok(Analyzer {
-            wrap_in_transaction,
             config: postgres::Config::from_str(connection)?,
+            wrap_in_transaction,
+            commit,
         })
     }
 
@@ -35,7 +41,7 @@ impl Analyzer {
                 .map(|s| Statement::analyze(&self.config, s, &mut tx, pid))
                 .collect();
 
-            tx.rollback()?;
+            self.finalize(tx)?;
 
             result
         } else {
@@ -49,10 +55,20 @@ impl Analyzer {
 
                 result.push(Statement::analyze(&self.config, stmt, &mut tx, pid)?);
 
-                tx.rollback()?;
+                self.finalize(tx)?
             }
 
             Ok(result)
         }
+    }
+
+    fn finalize(&self, tx: postgres::Transaction) -> Result<(), Error> {
+        if self.commit {
+            tx.commit()?
+        } else {
+            tx.rollback()?
+        }
+
+        Ok(())
     }
 }

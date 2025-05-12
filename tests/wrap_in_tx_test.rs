@@ -14,14 +14,20 @@ struct TestCase {
     // inputs
     starting_schema: String,
     statements: String,
-    wrap_in_transaction: bool,
 
     // output
     expected: Vec<Statement>,
 }
 
+// we do not want to execute tests in parallel, since they act on the same
+// database and we'll have deadlocks
 #[test]
-fn wrap_in_transaction() {
+fn test_all() {
+    test_wrap_in_transaction_rollback();
+    test_no_wrap_in_transaction_commit();
+}
+
+fn test_wrap_in_transaction_rollback() {
     let fixture_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join(file!())
         .parent()
@@ -33,7 +39,32 @@ fn wrap_in_transaction() {
     for test_case in &test_cases {
         reset_db(&test_case.starting_schema);
 
-        let stmts = Analyzer::new(&db(), test_case.wrap_in_transaction)
+        let stmts = Analyzer::new(&db(), true, false)
+            .unwrap()
+            .analyze(&test_case.statements)
+            .unwrap();
+
+        let actual = serde_yaml::to_string(&stmts).unwrap();
+        let expected = serde_yaml::to_string(&test_case.expected).unwrap();
+
+        assert_eq!(actual, expected);
+    }
+}
+
+fn test_no_wrap_in_transaction_commit() {
+    let fixture_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join(file!())
+        .parent()
+        .unwrap()
+        .join("fixture_non_wrapping.yml");
+    let fixtures = std::fs::read_to_string(fixture_file).unwrap();
+    let test_cases: Vec<TestCase> = serde_yaml::from_str(&fixtures).unwrap();
+
+    for test_case in &test_cases {
+        reset_db(&test_case.starting_schema);
+        println!("{:?}", test_case.starting_schema);
+
+        let stmts = Analyzer::new(&db(), false, true)
             .unwrap()
             .analyze(&test_case.statements)
             .unwrap();
