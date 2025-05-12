@@ -24,7 +24,8 @@ impl Formatter {
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 pub struct Cli {
-    /// The DDL statements to be analyzed
+    /// The DDL statements to analyze. If not provided or is -, read from
+    /// standard input.
     #[arg(default_value_t)]
     pub input: InputArg,
 
@@ -33,15 +34,15 @@ pub struct Cli {
     pub db: String,
 
     /// The output format of the analysis
-    #[arg(value_enum, long = "format", default_value_t = Formatter::Plain)]
+    #[arg(short, long = "format", value_enum, default_value_t = Formatter::Plain)]
     pub formatter: Formatter,
 
     /// Execute each statement in its own transaction.
     /// By default all statenents are executed in a single transaction. Implies --commit
-    #[arg(long, default_value_t = false)]
+    #[arg(short = 't', long, default_value_t = false)]
     pub distinct_transactions: bool,
 
     /// Commit the transactions. By default, they are rolled back.
-    #[arg(long, default_value_t = false)]
+    #[arg(short, long, default_value_t = false)]
     pub commit: bool,
 }
