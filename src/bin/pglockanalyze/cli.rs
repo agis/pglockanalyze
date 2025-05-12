@@ -38,11 +38,12 @@ pub struct Cli {
     pub formatter: Formatter,
 
     /// Execute each statement in its own transaction.
-    /// By default all statenents are executed in a single transaction. Implies --commit
-    #[arg(short = 't', long, default_value_t = false)]
+    /// By default all statements are executed in a single transaction.
+    /// Implies --commit
+    #[arg(long, default_value_t = false)]
     pub distinct_transactions: bool,
 
-    /// Commit the transactions. By default, they are rolled back.
-    #[arg(short, long, default_value_t = false)]
+    /// Commit the transactions. By default they are rolled back.
+    #[arg(long, default_value_t = false)]
     pub commit: bool,
 }

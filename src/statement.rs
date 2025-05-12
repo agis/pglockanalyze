@@ -13,14 +13,14 @@ pub struct Statement {
 
 impl Statement {
     pub fn analyze(
-        config: &pg::Config,
+        db: &pg::Config,
         sql: String,
         tx: &mut pg::Transaction,
         pid: i32,
     ) -> Result<Self, Error> {
-        let locks_before = Self::detect_locks(config, pid)?;
+        let locks_before = Self::detect_locks(db, pid)?;
         tx.execute(&sql, &[])?;
-        let locks_after = Self::detect_locks(config, pid)?;
+        let locks_after = Self::detect_locks(db, pid)?;
         let locks_acquired = Locks::compute_acquired(locks_before, locks_after);
 
         Ok(Statement {
