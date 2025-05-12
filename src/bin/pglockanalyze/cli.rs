@@ -32,16 +32,16 @@ pub struct Cli {
     #[arg(long, value_name = "postgres connection string")]
     pub db: String,
 
+    /// The output format of the analysis
     #[arg(value_enum, long = "format", default_value_t = Formatter::Plain)]
     pub formatter: Formatter,
 
-    /// Wrap all statements in a single transaction. Otherwise, each statement
-    /// gets its own transaction
-    #[arg(long, default_value_t = true)]
-    pub wrap_in_transaction: bool,
+    /// Execute each statement in its own transaction.
+    /// By default all statenents are executed in a single transaction. Implies --commit
+    #[arg(long, default_value_t = false)]
+    pub distinct_transactions: bool,
 
-    /// Commit each transaction instead of rolling it back
-    // TODO: make this implied if wrap_in_transaction is false
+    /// Commit the transactions. By default, they are rolled back.
     #[arg(long, default_value_t = false)]
     pub commit: bool,
 }

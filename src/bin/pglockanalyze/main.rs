@@ -7,11 +7,15 @@ mod cli;
 use cli::Cli;
 
 fn main() {
-    let cli = Cli::parse();
+    let mut cli = Cli::parse();
+    if cli.distinct_transactions {
+        cli.commit = true;
+    }
+
     let input = &cli.input.read_to_string().unwrap_or_else(abort);
 
     let analyzer =
-        Analyzer::new(&cli.db, cli.wrap_in_transaction, cli.commit).unwrap_or_else(abort);
+        Analyzer::new(&cli.db, cli.distinct_transactions, cli.commit).unwrap_or_else(abort);
     let analysis = analyzer.analyze(input).unwrap_or_else(abort);
     let output = cli.formatter.format(analysis);
 
