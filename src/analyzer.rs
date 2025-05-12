@@ -41,7 +41,7 @@ impl Analyzer {
 
             Ok(result)
         } else {
-            // all statements executed under a single transaction
+            // all statements execute under a single transaction
             let mut client = self.db.connect(postgres::NoTls)?;
             let mut tx = client.transaction()?;
             let pid = tx.query_one(FETCH_PID, &[])?.get(0);

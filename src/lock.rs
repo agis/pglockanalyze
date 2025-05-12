@@ -92,7 +92,7 @@ impl fmt::Display for Locks {
             .collect::<Vec<String>>();
 
         let s = if locks.is_empty() {
-            "\t(no locks)"
+            "\t(no locks acquired)"
         } else {
             &locks.join("\n")
         };
