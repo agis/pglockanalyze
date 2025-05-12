@@ -2,7 +2,7 @@
 name = "pglockanalyze"
 version = "0.0.1"
 authors = ["Agis Anastasopoulos <a@xz0.org>"]
-description = "Analyze what PostgreSQL locks are acquired by your schema migrations"
+description = "See what PostgreSQL locks your migrations acquired"
 edition = "2024"
 repository = "https://github.com/agis/pglockanalyze"
 license = "Apache-2.0"

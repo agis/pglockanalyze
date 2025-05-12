@@ -1,6 +1,6 @@
 # pglockanalyze
 
-Analyze and diagnose the locks acquired by your PostgreSQL migrations.
+See what PostgreSQL locks your migrations acquired.
 
 For use in CI and development environments.
 
