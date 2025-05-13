@@ -15,20 +15,17 @@ This software is experimental and under development.
 
 ## Rationale
 
-Understanding what locks your migrations will acquire is critical if you want to
-avoid inducing downtime in your production traffic. To that end, we have
-different tools like the [official Postgres
-documentation](https://www.postgresql.org/docs/current/explicit-locking.html)
-and [strong_migrations](https://github.com/ankane/strong_migrations).
+Understanding the locks your migrations will acquire is crucial to avoiding
+downtime in  production traffic. Tools like the [official Postgres
+docs](https://www.postgresql.org/docs/current/explicit-locking.html) and
+[strong_migrations](https://github.com/ankane/strong_migrations) are invaluable;
+however, reasoning your way through complex DDL statements is not always
+practical.
 
-While such tools are crucial and battle-tested, reasoning your way through the
-locks your migrations will acquire is not always easy. Static analysis can only
-get you so far; it's possible that a new Postgres version might change the types
-of locks a particular sequence of DDL statements might acquire.
-
-pglockanalyze is meant to act as a complement to the above tools. It actually
-executes your migrations and detects at run-time the locks they acquired. It is
-meant to be integrated to CI pipelines and/or development environments.
+pglockanalyze complements these tools by executing your migrations against a
+test database (that you have to set up) and dynamically identifying the locks
+acquired at runtime. It is meant to be integrated to CI pipelines and/or
+development workflows.
 
 ## Installation
 
