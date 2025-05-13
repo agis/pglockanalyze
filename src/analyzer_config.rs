@@ -1,5 +1,6 @@
 #[derive(Debug, Default)]
 pub struct AnalyzerConfig {
+    /// The Postgres connection string to connect to.
     pub db_connection_uri: String,
 
     /// If true, each statement will be executed in its own transaction.

@@ -4,7 +4,7 @@ use crate::statement::Statement;
 use std::str::FromStr;
 
 pub struct Analyzer {
-    config: AnalyzerConfig,
+    config: nalyzerConfig,
     db: postgres::Config,
 }
 

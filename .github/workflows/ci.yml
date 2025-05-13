@@ -1,0 +1,37 @@
+name: Build & test
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    name: Test with Postgres v${{ matrix.postgres }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        postgres: [14, 15, 16, 17]
+    services:
+      postgres:
+        image: postgres:${{ matrix.postgres }}
+        env:
+          POSTGRES_DB: pglatests
+          POSTGRES_USER: pglauser
+          POSTGRES_PASSWORD: pglapass
+        ports:
+          - 38471:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo check
+      - run: cargo build
+      - run: cargo test
