@@ -1,0 +1,73 @@
+- initial_schema: |-
+    CREATE TABLE frogs (
+      id serial PRIMARY KEY
+    );
+  statements: |-
+      -- hi
+      ALTER TABLE frogs
+      ADD COLUMN
+      email INT;
+
+      -- foo
+      ALTER TABLE frogs
+      ADD COLUMN
+      name INT;
+
+
+      ALTER TABLE frogs ADD COLUMN e INT; ALTER TABLE frogs ADD COLUMN d INT;
+      SELECT 1;
+
+      SELECT
+      2;
+      --
+  expected:
+    - sql: ALTER TABLE frogs ADD COLUMN email INT
+      location:
+        start_line: 2
+        end_line: 4
+      locks_acquired:
+        - database:
+            name: pglatests
+          mode: AccessExclusive
+          lock_target: !relation
+            alias: frogs
+    - sql: ALTER TABLE frogs ADD COLUMN name INT
+      location:
+        start_line: 7
+        end_line: 9
+      locks_acquired:
+        - database:
+            name: pglatests
+          mode: AccessExclusive
+          lock_target: !relation
+            alias: frogs
+    - sql: ALTER TABLE frogs ADD COLUMN e INT
+      location:
+        start_line: 12
+        end_line: 12
+      locks_acquired:
+        - database:
+            name: pglatests
+          mode: AccessExclusive
+          lock_target: !relation
+            alias: frogs
+    - sql: ALTER TABLE frogs ADD COLUMN d INT
+      location:
+        start_line: 12
+        end_line: 12
+      locks_acquired:
+        - database:
+            name: pglatests
+          mode: AccessExclusive
+          lock_target: !relation
+            alias: frogs
+    - sql: SELECT 1
+      location:
+        start_line: 13
+        end_line: 13
+      locks_acquired: []
+    - sql: SELECT 2
+      location:
+        start_line: 15
+        end_line: 16
+      locks_acquired: []
