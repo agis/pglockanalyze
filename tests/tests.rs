@@ -6,14 +6,17 @@ use serde::Deserialize;
 use std::path::PathBuf;
 use std::str::FromStr;
 
+// these are set in Makefile
 const DB_NAME: &str = "pglatests";
 const DB_USER: &str = "pglauser";
 const DB_PASS: &str = "pglapass";
+const DB_HOST: &str = "localhost";
+const DB_PORT: &str = "38471";
 
 #[derive(Debug, Deserialize)]
 struct TestCase {
     // inputs
-    starting_schema: String,
+    initial_schema: String,
     statements: String,
 
     // output
@@ -26,19 +29,14 @@ struct TestCase {
 fn test_all() {
     test_wrap_in_transaction_rollback();
     test_no_wrap_in_transaction_commit();
+    test_locations();
 }
 
 fn test_wrap_in_transaction_rollback() {
-    let fixture_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join(file!())
-        .parent()
-        .unwrap()
-        .join("fixture.yml");
-    let fixtures = std::fs::read_to_string(fixture_file).unwrap();
-    let test_cases: Vec<TestCase> = serde_yaml::from_str(&fixtures).unwrap();
+    let test_cases = load_fixture_file("fixture.yml");
 
     for test_case in &test_cases {
-        reset_db(&test_case.starting_schema);
+        reset_db(&test_case.initial_schema);
 
         let cfg = AnalyzerConfig {
             db_connection_uri: db(),
@@ -59,16 +57,10 @@ fn test_wrap_in_transaction_rollback() {
 }
 
 fn test_no_wrap_in_transaction_commit() {
-    let fixture_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join(file!())
-        .parent()
-        .unwrap()
-        .join("fixture_non_wrapping.yml");
-    let fixtures = std::fs::read_to_string(fixture_file).unwrap();
-    let test_cases: Vec<TestCase> = serde_yaml::from_str(&fixtures).unwrap();
+    let test_cases = load_fixture_file("fixture_non_wrapping.yml");
 
     for test_case in &test_cases {
-        reset_db(&test_case.starting_schema);
+        reset_db(&test_case.initial_schema);
 
         let cfg = AnalyzerConfig {
             db_connection_uri: db(),
@@ -86,6 +78,42 @@ fn test_no_wrap_in_transaction_commit() {
 
         assert_eq!(actual, expected);
     }
+}
+
+fn test_locations() {
+    let test_cases = load_fixture_file("fixture_locations.yml");
+
+    for test_case in &test_cases {
+        reset_db(&test_case.initial_schema);
+
+        let cfg = AnalyzerConfig {
+            db_connection_uri: db(),
+            distinct_transactions: true,
+            commit: true,
+        };
+
+        let stmts = Analyzer::from(cfg)
+            .unwrap()
+            .analyze(&test_case.statements)
+            .unwrap();
+
+        let actual = serde_yaml::to_string(&stmts).unwrap();
+        let expected = serde_yaml::to_string(&test_case.expected).unwrap();
+
+        assert_eq!(actual, expected);
+    }
+}
+
+fn load_fixture_file(fname: &str) -> Vec<TestCase> {
+    let file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join(file!())
+        .parent()
+        .unwrap()
+        .join(fname);
+
+    let fixture = std::fs::read_to_string(file).unwrap();
+
+    serde_yaml::from_str(&fixture).unwrap()
 }
 
 fn reset_db(bootstrap: &str) {
@@ -108,7 +136,7 @@ fn reset_db(bootstrap: &str) {
 
 fn db() -> String {
     format!(
-        "postgresql://{}:{}@localhost:38471/{}",
-        DB_USER, DB_PASS, DB_NAME
+        "postgresql://{}:{}@{}:{}/{}",
+        DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME,
     )
 }

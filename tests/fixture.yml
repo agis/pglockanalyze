@@ -1,4 +1,4 @@
-- starting_schema: |-
+- initial_schema: |-
     CREATE TABLE users (
       id serial PRIMARY KEY,
       foo text
@@ -6,7 +6,10 @@
   statements: |-
     ALTER TABLE users ADD COLUMN email text;
   expected:
-    - sql: ALTER TABLE users ADD COLUMN email text
+    - sql: ALTER TABLE users ADD COLUMN email TEXT
+      location:
+        start_line: 1
+        end_line: 1
       locks_acquired:
         - database:
             name: pglatests
@@ -14,7 +17,7 @@
           lock_target: !relation
             alias: users
 
-- starting_schema: |-
+- initial_schema: |-
     CREATE TABLE products (
       id serial PRIMARY KEY,
       price numeric
@@ -23,6 +26,9 @@
     ALTER TABLE products RENAME COLUMN price TO cost;
   expected:
     - sql: ALTER TABLE products RENAME COLUMN price TO cost
+      location:
+        start_line: 1
+        end_line: 1
       locks_acquired:
         - database:
             name: pglatests
@@ -30,7 +36,7 @@
           lock_target: !relation
             alias: products
 
-- starting_schema: |-
+- initial_schema: |-
     CREATE TABLE orders (
       id serial PRIMARY KEY
     );
@@ -38,6 +44,9 @@
     ALTER TABLE orders RENAME TO orders_archive;
   expected:
     - sql: ALTER TABLE orders RENAME TO orders_archive
+      location:
+        start_line: 1
+        end_line: 1
       locks_acquired:
         - database:
             name: pglatests
@@ -47,7 +56,7 @@
             # rename (otherwise this would be orders_archive)
             alias: orders
 
-- starting_schema: |-
+- initial_schema: |-
     CREATE TABLE customers (
       id    serial PRIMARY KEY,
       email text
@@ -57,6 +66,9 @@
     ALTER TABLE customers RENAME COLUMN email TO contact_email;
   expected:
     - sql: ALTER TABLE customers ALTER COLUMN email SET NOT NULL
+      location:
+        start_line: 1
+        end_line: 1
       locks_acquired:
         - database:
             name: pglatests
@@ -64,18 +76,24 @@
           lock_target: !relation
             alias: customers
     - sql: ALTER TABLE customers RENAME COLUMN email TO contact_email
+      location:
+        start_line: 2
+        end_line: 2
       locks_acquired: []
 
-- starting_schema: |-
+- initial_schema: |-
     CREATE TABLE logs (
       id      serial PRIMARY KEY,
       message text,
       details text
     );
   statements: |-
-    ALTER TABLE logs DROP details;
+    ALTER TABLE logs DROP COLUMN details;
   expected:
-    - sql: ALTER TABLE logs DROP details
+    - sql: ALTER TABLE logs DROP COLUMN details
+      location:
+        start_line: 1
+        end_line: 1
       locks_acquired:
         - database:
             name: pglatests
@@ -83,7 +101,7 @@
           lock_target: !relation
             alias: logs
 
-- starting_schema: |-
+- initial_schema: |-
     CREATE TABLE audits (
       id     serial PRIMARY KEY,
       amount numeric
@@ -93,6 +111,9 @@
     ALTER TABLE audits RENAME TO audit_logs;
   expected:
     - sql: ALTER TABLE audits ADD CHECK (amount >= 0)
+      location:
+        start_line: 1
+        end_line: 1
       locks_acquired:
         - database:
             name: pglatests
@@ -100,4 +121,7 @@
           lock_target: !relation
             alias: audits
     - sql: ALTER TABLE audits RENAME TO audit_logs
+      location:
+        start_line: 2
+        end_line: 2
       locks_acquired: []

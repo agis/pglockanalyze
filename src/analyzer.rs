@@ -1,6 +1,9 @@
 use crate::analyzer_config::AnalyzerConfig;
 use crate::errors::Error;
 use crate::statement::Statement;
+use postgres as pg;
+use sqlparser::dialect::PostgreSqlDialect;
+use sqlparser::parser::Parser;
 use std::str::FromStr;
 
 pub struct Analyzer {
@@ -19,11 +22,7 @@ impl Analyzer {
     pub fn analyze(&self, sql: &str) -> Result<Vec<Statement>, Error> {
         const FETCH_PID: &str = "SELECT pg_backend_pid()";
 
-        let stmts = pg_query::parse(sql)?
-            .protobuf
-            .stmts
-            .into_iter()
-            .map(|stmt| stmt.stmt.unwrap().deparse().unwrap());
+        let stmts = Parser::parse_sql(&PostgreSqlDialect {}, sql)?;
 
         if self.config.distinct_transactions {
             // each statement executes in its own transaction
@@ -34,7 +33,7 @@ impl Analyzer {
                 let mut tx = client.transaction()?;
                 let pid = tx.query_one(FETCH_PID, &[])?.get(0);
 
-                result.push(Statement::analyze(&self.db, stmt, &mut tx, pid)?);
+                result.push(Statement::analyze(&self.db, &mut tx, pid, stmt)?);
 
                 self.finalize(tx)?
             }
@@ -47,7 +46,8 @@ impl Analyzer {
             let pid = tx.query_one(FETCH_PID, &[])?.get(0);
 
             let result = stmts
-                .map(|s| Statement::analyze(&self.db, s, &mut tx, pid))
+                .into_iter()
+                .map(|stmt| Statement::analyze(&self.db, &mut tx, pid, stmt))
                 .collect();
 
             self.finalize(tx)?;
@@ -56,7 +56,7 @@ impl Analyzer {
         }
     }
 
-    fn finalize(&self, tx: postgres::Transaction) -> Result<(), Error> {
+    fn finalize(&self, tx: pg::Transaction) -> Result<(), Error> {
         if self.config.commit {
             tx.commit()?
         } else {

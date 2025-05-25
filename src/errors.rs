@@ -1,9 +1,10 @@
+use sqlparser::parser::ParserError;
 use std::fmt;
 
 #[derive(Debug)]
 pub enum Error {
     InputError(std::io::Error),
-    AnalyzeError(pg_query::Error),
+    AnalyzeError(ParserError),
     ConfigParseError(postgres::Error),
     ConfigOtherError(String),
 }
@@ -20,8 +21,8 @@ impl From<&str> for Error {
     }
 }
 
-impl From<pg_query::Error> for Error {
-    fn from(e: pg_query::Error) -> Error {
+impl From<ParserError> for Error {
+    fn from(e: ParserError) -> Error {
         Error::AnalyzeError(e)
     }
 }
