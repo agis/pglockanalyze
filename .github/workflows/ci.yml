@@ -9,6 +9,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+  # Make sure CI fails on all warnings, including Clippy lints
+  RUSTFLAGS: "-Dwarnings"
+
 jobs:
   build_and_test:
     name: Test with Postgres v${{ matrix.postgres }}
@@ -36,4 +39,5 @@ jobs:
       - uses: actions/checkout@v4
       - run: cargo check
       - run: cargo build
+      - run: cargo clippy --all-targets --all-features
       - run: cargo test
