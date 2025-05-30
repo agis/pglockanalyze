@@ -5,9 +5,13 @@
 [Latest Version]: https://img.shields.io/crates/v/pglockanalyze.svg
 [crates.io]: https://crates.io/crates/pglockanalyze
 
-See what PostgreSQL locks your migrations acquired.
+Given a PostgreSQL database and the DDL statements to analyze, pglockanalyze
+executes the statements (commit or rollback) against the database and reports
+the locks they acquired.
 
-For use in CI and development environments.
+It is meant to be used in CI and/or development environments. See
+[pglockanalyze-action](https://github.com/agis/pglockanalyze-action) for
+integration with GitHub Actions.
 
 ## Status
 
@@ -22,10 +26,15 @@ docs](https://www.postgresql.org/docs/current/explicit-locking.html) and
 however, reasoning your way through complex DDL statements is not always
 practical.
 
-pglockanalyze complements these tools by executing your migrations against a
-test database (that you have to set up) and dynamically identifying the locks
-acquired at runtime. It is meant to be integrated to CI pipelines and/or
-development workflows.
+pglockanalyze is meant to complement, not replace such tools, by executing your
+migrations against a test database (that you have to provision) and dynamically
+identifying the locks acquired at runtime. It then prints a report of the locks
+that were acquired.
+
+By default, pglockanalyze rolls back the transactions it analyzes, so you can
+safely run it against a test database without worrying about leaving it in and
+inconsistent state. If you want to commit the transactions, you can use the
+`--commit` option.
 
 ## Installation
 
