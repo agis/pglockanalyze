@@ -5,7 +5,7 @@
 [Latest Version]: https://img.shields.io/crates/v/pglockanalyze.svg
 [crates.io]: https://crates.io/crates/pglockanalyze
 
-**See what locks your Postgres migrations will acquire—before you run them in production.**
+*See what locks your Postgres migrations will acquire—before you run them in production.*
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/3539ef87-8bce-436c-a826-fbdc4a7da526" />
