@@ -5,17 +5,19 @@
 [Latest Version]: https://img.shields.io/crates/v/pglockanalyze.svg
 [crates.io]: https://crates.io/crates/pglockanalyze
 
-Given a PostgreSQL database and the DDL statements to analyze, pglockanalyze
-executes the statements (commit or rollback) against the database and reports
-the locks they acquired.
+**See what locks your Postgres migrations will acquire—before you run them in production.**
 
-It is meant to be used in CI and/or development environments. See
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/3539ef87-8bce-436c-a826-fbdc4a7da526" />
+</p>
+
+To be used in CI and development environments; see
 [pglockanalyze-action](https://github.com/agis/pglockanalyze-action) for
 integration with GitHub Actions.
 
 ## Status
 
-This software is experimental and under development.
+This software is in alpha stage - expect breaking changes between releases and a lot of rough edges.
 
 ## Rationale
 
