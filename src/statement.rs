@@ -31,7 +31,7 @@ pub struct Statement {
 }
 
 impl Statement {
-    pub fn analyze(
+    pub(crate) fn analyze(
         db: &pg::Config,
         tx: &mut pg::Transaction,
         pid: i32,
@@ -50,7 +50,7 @@ impl Statement {
         })
     }
 
-    fn detect_locks(config: &pg::Config, pid: i32) -> Result<HashSet<Lock>, Error> {
+    pub(crate) fn detect_locks(config: &pg::Config, pid: i32) -> Result<HashSet<Lock>, Error> {
         const SQL: &str = "\
 SELECT
     l.locktype,

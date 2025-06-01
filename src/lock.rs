@@ -18,7 +18,7 @@ use target::Target;
 pub struct Locks(HashSet<Lock>);
 
 impl Locks {
-    pub fn compute_acquired(before: HashSet<Lock>, after: HashSet<Lock>) -> Locks {
+    pub(crate) fn compute_acquired(before: HashSet<Lock>, after: HashSet<Lock>) -> Locks {
         Locks(after.difference(&before).cloned().collect())
     }
 }
