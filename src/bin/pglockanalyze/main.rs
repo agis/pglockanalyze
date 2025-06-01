@@ -2,8 +2,7 @@ mod cli;
 
 use clap::Parser;
 use cli::Cli;
-use pglockanalyze::analyzer::Analyzer;
-use pglockanalyze::analyzer_config::AnalyzerConfig;
+use pglockanalyze::analyzer::{Analyzer, AnalyzerConfig};
 use std::error::Error;
 use std::process::exit;
 
@@ -20,7 +19,7 @@ fn main() {
         commit: cli.commit,
     };
 
-    let analyzer = Analyzer::from(config).unwrap_or_else(abort);
+    let analyzer = Analyzer::try_from(config).unwrap_or_else(abort);
     let analysis = analyzer.analyze(input).unwrap_or_else(abort);
     let output = cli.formatter.format(analysis);
 

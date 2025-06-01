@@ -1,4 +1,3 @@
-use crate::analyzer_config::AnalyzerConfig;
 use crate::errors::Error;
 use crate::statement::Statement;
 use postgres as pg;
@@ -6,19 +5,37 @@ use sqlparser::dialect::PostgreSqlDialect;
 use sqlparser::parser::Parser;
 use std::str::FromStr;
 
+#[derive(Debug, Default)]
+pub struct AnalyzerConfig {
+    /// The Postgres connection string to connect to.
+    pub db_connection_uri: String,
+
+    /// If true, each statement will be executed in its own transaction.
+    /// Otherwise, all statements will be executed in the same transaction.
+    pub distinct_transactions: bool,
+
+    /// If true, the transaction(s) will be committed. Otherwise they will be
+    /// rolled back.
+    pub commit: bool,
+}
+
 pub struct Analyzer {
     config: AnalyzerConfig,
     db: postgres::Config,
 }
 
-impl Analyzer {
-    pub fn from(config: AnalyzerConfig) -> Result<Analyzer, Error> {
+impl TryFrom<AnalyzerConfig> for Analyzer {
+    type Error = Error;
+
+    fn try_from(config: AnalyzerConfig) -> Result<Self, Error> {
         Ok(Analyzer {
             db: postgres::Config::from_str(&config.db_connection_uri)?,
             config,
         })
     }
+}
 
+impl Analyzer {
     pub fn analyze(&self, sql: &str) -> Result<Vec<Statement>, Error> {
         const FETCH_PID: &str = "SELECT pg_backend_pid()";
 
