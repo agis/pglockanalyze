@@ -1,4 +1,4 @@
-use crate::errors::Error;
+use crate::analyzer::{AnalyzeError, LockColumn};
 use postgres as pg;
 use postgres::types::Oid;
 use serde::{Deserialize, Serialize};
@@ -37,7 +37,7 @@ pub struct Lock {
 }
 
 impl TryFrom<pg::Row> for Lock {
-    type Error = Error;
+    type Error = AnalyzeError;
 
     fn try_from(row: pg::Row) -> Result<Self, Self::Error> {
         let locktype = row.try_get("locktype")?;
@@ -47,14 +47,16 @@ impl TryFrom<pg::Row> for Lock {
             LockType::Relation => {
                 let oid: Option<Oid> = row.try_get("relation")?;
                 Target::Relation {
-                    oid: oid.ok_or("expected relation to be non-null")?,
+                    oid: oid
+                        .ok_or_else(|| AnalyzeError::UnexpectedNullColumn(LockColumn::Relation))?,
                     alias: lock_target_alias,
                 }
             }
             LockType::Object => {
                 let oid: Option<Oid> = row.try_get("objid")?;
                 Target::Object {
-                    oid: oid.ok_or("expected objid to be non-null")?,
+                    oid: oid
+                        .ok_or_else(|| AnalyzeError::UnexpectedNullColumn(LockColumn::ObjectID))?,
                     alias: lock_target_alias,
                 }
             }

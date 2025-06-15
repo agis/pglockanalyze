@@ -14,7 +14,7 @@ fn main() {
 
     let input = &cli.input.read_to_string().unwrap_or_else(abort);
     let config = AnalyzerConfig {
-        db_connection_uri: cli.db,
+        db_connection_string: cli.db,
         distinct_transactions: cli.distinct_transactions,
         commit: cli.commit,
     };

@@ -1,5 +1,4 @@
 use pglockanalyze::analyzer::*;
-use pglockanalyze::analyzer_config::*;
 use pglockanalyze::statement::*;
 use pretty_assertions::assert_eq;
 use serde::Deserialize;
@@ -39,12 +38,12 @@ fn test_wrap_in_transaction_rollback() {
         reset_db(&test_case.initial_schema);
 
         let cfg = AnalyzerConfig {
-            db_connection_uri: db(),
+            db_connection_string: db(),
             distinct_transactions: false,
             commit: false,
         };
 
-        let stmts = Analyzer::from(cfg)
+        let stmts = Analyzer::try_from(cfg)
             .unwrap()
             .analyze(&test_case.statements)
             .unwrap();
@@ -63,12 +62,12 @@ fn test_no_wrap_in_transaction_commit() {
         reset_db(&test_case.initial_schema);
 
         let cfg = AnalyzerConfig {
-            db_connection_uri: db(),
+            db_connection_string: db(),
             distinct_transactions: true,
             commit: true,
         };
 
-        let stmts = Analyzer::from(cfg)
+        let stmts = Analyzer::try_from(cfg)
             .unwrap()
             .analyze(&test_case.statements)
             .unwrap();
@@ -87,12 +86,12 @@ fn test_locations() {
         reset_db(&test_case.initial_schema);
 
         let cfg = AnalyzerConfig {
-            db_connection_uri: db(),
+            db_connection_string: db(),
             distinct_transactions: true,
             commit: true,
         };
 
-        let stmts = Analyzer::from(cfg)
+        let stmts = Analyzer::try_from(cfg)
             .unwrap()
             .analyze(&test_case.statements)
             .unwrap();

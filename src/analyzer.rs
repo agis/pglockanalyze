@@ -1,14 +1,14 @@
-use crate::errors::Error;
 use crate::statement::Statement;
 use postgres as pg;
 use sqlparser::dialect::PostgreSqlDialect;
-use sqlparser::parser::Parser;
+use sqlparser::parser::{Parser, ParserError};
 use std::str::FromStr;
+use thiserror::Error;
 
 #[derive(Debug, Default)]
 pub struct AnalyzerConfig {
     /// The Postgres connection string to connect to.
-    pub db_connection_uri: String,
+    pub db_connection_string: String,
 
     /// If true, each statement will be executed in its own transaction.
     /// Otherwise, all statements will be executed in the same transaction.
@@ -25,18 +25,25 @@ pub struct Analyzer {
 }
 
 impl TryFrom<AnalyzerConfig> for Analyzer {
-    type Error = Error;
+    type Error = ParseConnectionStringError;
 
-    fn try_from(config: AnalyzerConfig) -> Result<Self, Error> {
+    fn try_from(config: AnalyzerConfig) -> Result<Self, ParseConnectionStringError> {
         Ok(Analyzer {
-            db: postgres::Config::from_str(&config.db_connection_uri)?,
+            db: postgres::Config::from_str(&config.db_connection_string)?,
             config,
         })
     }
 }
 
+#[derive(Error, Debug)]
+#[error("error creating configuration: {}", self.source)]
+pub struct ParseConnectionStringError {
+    #[from]
+    source: postgres::Error,
+}
+
 impl Analyzer {
-    pub fn analyze(&self, sql: &str) -> Result<Vec<Statement>, Error> {
+    pub fn analyze(&self, sql: &str) -> Result<Vec<Statement>, AnalyzeError> {
         const FETCH_PID: &str = "SELECT pg_backend_pid()";
 
         let stmts = Parser::parse_sql(&PostgreSqlDialect {}, sql)?;
@@ -73,13 +80,40 @@ impl Analyzer {
         }
     }
 
-    fn finalize(&self, tx: pg::Transaction) -> Result<(), Error> {
+    fn finalize(&self, tx: pg::Transaction) -> Result<(), AnalyzeError> {
         if self.config.commit {
-            tx.commit()?
+            tx.commit()
+                .map_err(|e| AnalyzeError::TransactionCommit(e.to_string()))
         } else {
-            tx.rollback()?
+            tx.rollback()
+                .map_err(|e| AnalyzeError::TransactionRollback(e.to_string()))
         }
-
-        Ok(())
     }
+}
+
+#[derive(Error, Debug)]
+pub enum AnalyzeError {
+    #[error("{0}")]
+    SQLParse(#[from] ParserError),
+
+    #[error("{0}")]
+    DatabaseConnect(#[from] pg::Error),
+
+    #[error("error committing transaction: {0}")]
+    TransactionCommit(String),
+
+    #[error("error rolling back transaction: {0}")]
+    TransactionRollback(String),
+
+    #[error("unexpected NULL in column `{0}`")]
+    UnexpectedNullColumn(LockColumn),
+}
+
+#[derive(Error, Debug)]
+pub enum LockColumn {
+    #[error("relation")]
+    Relation,
+
+    #[error("objid")]
+    ObjectID,
 }

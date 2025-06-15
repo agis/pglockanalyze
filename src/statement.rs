@@ -1,4 +1,4 @@
-use crate::errors::Error;
+use crate::analyzer::AnalyzeError;
 use crate::lock::{Lock, Locks};
 use postgres as pg;
 use serde::{Deserialize, Serialize};
@@ -36,7 +36,7 @@ impl Statement {
         tx: &mut pg::Transaction,
         pid: i32,
         stmt: AstStatement,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, AnalyzeError> {
         let locks_before = Self::detect_locks(db, pid)?;
         let sql = stmt.to_string();
         tx.execute(&sql, &[])?;
@@ -50,7 +50,10 @@ impl Statement {
         })
     }
 
-    pub(crate) fn detect_locks(config: &pg::Config, pid: i32) -> Result<HashSet<Lock>, Error> {
+    pub(crate) fn detect_locks(
+        config: &pg::Config,
+        pid: i32,
+    ) -> Result<HashSet<Lock>, AnalyzeError> {
         const SQL: &str = "\
 SELECT
     l.locktype,
@@ -61,7 +64,7 @@ SELECT
     l.mode,
     CASE l.locktype
         WHEN 'relation' THEN l.relation::regclass::text
-        WHEN 'object'   THEN 'object: ' || l.objid::text || ' (class: ' || l.classid::regclass::text || ')'
+        WHEN 'object'   THEN l.objid::text || ' (class: ' || l.classid::regclass::text || ')'
     END AS target
 FROM
     pg_catalog.pg_locks l
