@@ -2,8 +2,7 @@ mod cli;
 
 use clap::Parser;
 use cli::Cli;
-use pglockanalyze::analyzer::Analyzer;
-use pglockanalyze::analyzer_config::AnalyzerConfig;
+use pglockanalyze::analyzer::{Analyzer, AnalyzerConfig};
 use std::error::Error;
 use std::process::exit;
 
@@ -15,12 +14,12 @@ fn main() {
 
     let input = &cli.input.read_to_string().unwrap_or_else(abort);
     let config = AnalyzerConfig {
-        db_connection_uri: cli.db,
+        db_connection_string: cli.db,
         distinct_transactions: cli.distinct_transactions,
         commit: cli.commit,
     };
 
-    let analyzer = Analyzer::from(config).unwrap_or_else(abort);
+    let analyzer = Analyzer::try_from(config).unwrap_or_else(abort);
     let analysis = analyzer.analyze(input).unwrap_or_else(abort);
     let output = cli.formatter.format(analysis);
 

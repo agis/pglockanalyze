@@ -2,7 +2,7 @@ use postgres::types::Oid;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Target depicts the resource that was locked, i.e. the acquired lock's target.
+/// Target is the resource that was locked.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Target {
