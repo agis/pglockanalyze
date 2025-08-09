@@ -14,7 +14,7 @@ impl Formatter {
             Self::Json => serde_json::to_string(&stmts).unwrap(),
             Self::Plain => stmts
                 .iter()
-                .map(|s| format!("{}", s))
+                .map(|s| format!("{s}"))
                 .collect::<Vec<String>>()
                 .join("\n"),
         }

@@ -134,8 +134,5 @@ fn reset_db(bootstrap: &str) {
 }
 
 fn db() -> String {
-    format!(
-        "postgresql://{}:{}@{}:{}/{}",
-        DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME,
-    )
+    format!("postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 }
