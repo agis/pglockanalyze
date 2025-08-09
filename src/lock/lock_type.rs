@@ -21,7 +21,7 @@ impl<'a> FromSql<'a> for LockType {
         let lock_type = match String::from_sql(ty, raw)?.as_str() {
             "object" => Self::Object,
             "relation" => Self::Relation,
-            other => return Err(format!("invalid locktype {}", other).into()),
+            other => return Err(format!("invalid locktype {other}").into()),
         };
 
         Ok(lock_type)

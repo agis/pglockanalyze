@@ -90,7 +90,7 @@ impl fmt::Display for Locks {
         let locks = self
             .0
             .iter()
-            .map(|lock| format!("\t{}", lock))
+            .map(|lock| format!("\t{lock}"))
             .collect::<Vec<String>>();
 
         let s = if locks.is_empty() {
@@ -99,6 +99,6 @@ impl fmt::Display for Locks {
             &locks.join("\n")
         };
 
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }

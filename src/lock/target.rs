@@ -25,6 +25,6 @@ impl fmt::Display for Target {
             Target::Object { oid, alias } => ("object", alias, oid),
             Target::Relation { oid, alias } => ("relation", alias, oid),
         };
-        write!(f, "{} `{}` (oid={})", kind, alias, oid)
+        write!(f, "{kind} `{alias}` (oid={oid})")
     }
 }

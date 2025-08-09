@@ -91,7 +91,7 @@ impl<'a> FromSql<'a> for LockMode {
             "AccessExclusiveLock" => LockMode::AccessExclusive,
             "ShareRowExclusiveLock" => LockMode::ShareRowExclusive,
             "ShareUpdateExclusiveLock" => LockMode::ShareUpdateExclusive,
-            other => return Err(format!("unhandled TableLockMode {}", other).into()),
+            other => return Err(format!("unhandled TableLockMode {other}").into()),
         };
 
         Ok(lock_mode)
