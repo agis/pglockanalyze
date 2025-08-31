@@ -1,6 +1,6 @@
 [package]
 name = "pglockanalyze"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Agis Anastasopoulos <a@xz0.org>"]
 description = "See what PostgreSQL locks your migrations acquired"
 edition = "2024"
