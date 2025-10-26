@@ -10,7 +10,6 @@ keywords = ["postgresql", "migrations", "database-migrations", "schema-migration
 categories = ["database", "command-line-utilities"]
 
 [dependencies]
-anyhow = "1.0.98"
 clap = { version = "4.5.37", features = ["derive"] }
 patharg = "0.4.0"
 postgres = { version = "0.19.10"}

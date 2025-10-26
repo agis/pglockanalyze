@@ -17,7 +17,7 @@ impl<'a> FromSql<'a> for LockType {
     fn from_sql(
         ty: &Type,
         raw: &'a [u8],
-    ) -> Result<Self, Box<(dyn std::error::Error + Send + Sync + 'static)>> {
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync + 'static>> {
         let lock_type = match String::from_sql(ty, raw)?.as_str() {
             "object" => Self::Object,
             "relation" => Self::Relation,

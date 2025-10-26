@@ -81,7 +81,7 @@ impl<'a> FromSql<'a> for LockMode {
     fn from_sql(
         ty: &Type,
         raw: &'a [u8],
-    ) -> Result<Self, Box<(dyn std::error::Error + Send + Sync + 'static)>> {
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync + 'static>> {
         let lock_mode = match String::from_sql(ty, raw)?.as_str() {
             "ShareLock" => LockMode::Share,
             "RowShareLock" => LockMode::RowShare,
