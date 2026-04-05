@@ -1,4 +1,4 @@
-use postgres::types::{accepts, FromSql, Type};
+use postgres::types::{FromSql, Type, accepts};
 use serde::{Deserialize, Serialize};
 
 /// Possible values of the pg_locks.mode column
