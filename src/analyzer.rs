@@ -17,6 +17,16 @@ pub struct AnalyzerConfig {
     /// If true, the transaction(s) will be committed. Otherwise they will be
     /// rolled back.
     pub commit: bool,
+
+    /// TODO:
+    pub mode: Mode,
+}
+
+#[derive(Debug, Default, PartialEq)]
+pub enum Mode {
+    #[default]
+    Plain,
+    SqlMigrate,
 }
 
 pub struct Analyzer {
